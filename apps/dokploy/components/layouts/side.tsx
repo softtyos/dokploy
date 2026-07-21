@@ -1184,6 +1184,9 @@ export default function Page({ children }: Props) {
 								Version {dokployVersion}
 							</div>
 						)}
+						<div className="px-3 text-xs text-muted-foreground text-center group-data-[collapsible=icon]:hidden font-medium text-foreground/80 mt-1">
+							SOFTTY.NET CO., LTD ❤️ Dokploy
+						</div>
 					</SidebarMenu>
 				</SidebarFooter>
 				<SidebarRail />
