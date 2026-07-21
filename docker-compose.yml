@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  dokploy:
+    image: softtynet/dokploy:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://dokploy:dokploy@postgres:5432/dokploy
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - dokploy-data:/app/data
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: dokploy
+      POSTGRES_PASSWORD: dokploy
+      POSTGRES_DB: dokploy
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis-data:/data
+
+volumes:
+  dokploy-data:
+  postgres-data:
+  redis-data:

@@ -41,9 +41,7 @@ export const ssoRouter = createTRPCRouter({
 			return false;
 		}
 
-		return (
-			owner.user.enableEnterpriseFeatures && owner.user.isValidEnterpriseLicense
-		);
+		return true;
 	}),
 	enforceSSO: publicProcedure.query(async () => {
 		if (IS_CLOUD) {

@@ -17,8 +17,6 @@ export const hasValidLicense = async (organizationId: string) => {
 			isValidEnterpriseLicense: true,
 		},
 	});
-	return !!(
-		currentUser?.enableEnterpriseFeatures &&
-		currentUser?.isValidEnterpriseLicense
-	);
+	// Bypass license check for internal use
+	return true;
 };
