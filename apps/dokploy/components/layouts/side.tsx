@@ -1184,9 +1184,14 @@ export default function Page({ children }: Props) {
 								Version {dokployVersion}
 							</div>
 						)}
-						<div className="px-3 text-xs text-muted-foreground text-center group-data-[collapsible=icon]:hidden font-medium text-foreground/80 mt-1">
-							SOFTTY.NET CO., LTD ❤️ Dokploy
-						</div>
+						<Link
+							href="https://www.softty.net"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="block px-3 py-2 mx-3 mt-1 text-xs text-muted-foreground text-center group-data-[collapsible=icon]:hidden font-medium rounded-lg hover:bg-accent hover:text-accent-foreground hover:shadow-sm transition-all duration-200"
+						>
+							SOFTTY.NET CO., LTD <span className="mx-0.5 text-red-500">❤️</span> Dokploy
+						</Link>
 					</SidebarMenu>
 				</SidebarFooter>
 				<SidebarRail />

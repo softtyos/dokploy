@@ -50,7 +50,7 @@ export const getUpdateData = async (
 ): Promise<IUpdateData> => {
 	try {
 		const baseUrl =
-			"https://hub.docker.com/v2/repositories/dokploy/dokploy/tags";
+			"https://hub.docker.com/v2/repositories/softtynet/dokploy/tags";
 		let url: string | null = `${baseUrl}?page_size=100`;
 		let allResults: { digest: string; name: string }[] = [];
 
@@ -295,7 +295,7 @@ export const reloadDockerResource = async (
 				imageTag = currentImageTag;
 			}
 
-			command = `docker service update --force --image dokploy/dokploy:${imageTag} ${resourceName}`;
+			command = `docker service update --force --image softtynet/dokploy:${imageTag} ${resourceName}`;
 		} else {
 			command = `docker service update --force ${resourceName}`;
 		}
