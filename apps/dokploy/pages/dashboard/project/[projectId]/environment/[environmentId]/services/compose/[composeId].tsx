@@ -45,6 +45,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 	Tooltip,
@@ -260,8 +261,7 @@ const Service = (
 											{data?.sourceType !== "raw" && (
 												<TabsTrigger value="patches">Patches</TabsTrigger>
 											)}
-											{permissions?.monitoring.read &&
-												((data?.serverId && isCloud) || !data?.server) && (
+											{permissions?.monitoring.read && (
 													<TabsTrigger value="monitoring">
 														Monitoring
 													</TabsTrigger>
@@ -327,10 +327,20 @@ const Service = (
 										<TabsContent value="monitoring">
 											<div className="pt-2.5">
 												<div className="flex flex-col border rounded-lg ">
-													{data?.serverId && isCloud ? (
+													<div className="flex flex-row border w-fit p-4 rounded-lg items-center gap-2 m-4">
+														<Label className="text-muted-foreground">
+															Change Monitoring
+														</Label>
+														<Switch
+															checked={_toggleMonitoring}
+															onCheckedChange={_setToggleMonitoring}
+														/>
+													</div>
+
+													{_toggleMonitoring ? (
 														<ComposePaidMonitoring
 															serverId={data?.serverId || ""}
-															baseUrl={`${data?.serverId ? `http://${data?.server?.ipAddress}:${data?.server?.metricsConfig?.server?.port}` : "http://localhost:4500"}`}
+															baseUrl={`http://${data?.server?.ipAddress || serverIp || "localhost"}:${data?.server?.metricsConfig?.server?.port || 4500}`}
 															appName={data?.appName || ""}
 															token={
 																data?.server?.metricsConfig?.server?.token || ""
@@ -338,40 +348,11 @@ const Service = (
 															appType={data?.composeType || "docker-compose"}
 														/>
 													) : (
-														<>
-															{/* {monitoring?.enabledFeatures &&
-															isCloud &&
-															data?.serverId && (
-																<div className="flex flex-row border w-fit p-4 rounded-lg items-center gap-2 m-4">
-																	<Label className="text-muted-foreground">
-																		Change Monitoring
-																	</Label>
-																	<Switch
-																		checked={toggleMonitoring}
-																		onCheckedChange={setToggleMonitoring}
-																	/>
-																</div>
-															)}
-
-														{toggleMonitoring ? (
-															<ComposePaidMonitoring
-																appName={data?.appName || ""}
-																baseUrl={`http://${monitoring?.serverIp}:${monitoring?.metricsConfig?.server?.port}`}
-																token={
-																	monitoring?.metricsConfig?.server?.token || ""
-																}
-																appType={data?.composeType || "docker-compose"}
-															/>
-														) : ( */}
-															{/* <div> */}
-															<ComposeFreeMonitoring
-																serverId={data?.serverId || ""}
-																appName={data?.appName || ""}
-																appType={data?.composeType || "docker-compose"}
-															/>
-															{/* </div> */}
-															{/* )} */}
-														</>
+														<ComposeFreeMonitoring
+															serverId={data?.serverId || ""}
+															appName={data?.appName || ""}
+															appType={data?.composeType || "docker-compose"}
+														/>
 													)}
 												</div>
 											</div>

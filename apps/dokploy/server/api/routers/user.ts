@@ -384,7 +384,7 @@ export const userRouter = createTRPCRouter({
 			const settings = await getWebServerSettings();
 			return {
 				serverIp: settings?.serverIp,
-				enabledFeatures: user.enablePaidFeatures,
+				enabledFeatures: true,
 				metricsConfig: settings?.metricsConfig,
 			};
 		},
