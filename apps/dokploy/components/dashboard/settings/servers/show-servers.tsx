@@ -304,8 +304,7 @@ export const ShowServers = () => {
 																					</Tooltip>
 																				)}
 
-																				{isCloud &&
-																					server.sshKeyId &&
+																				{server.sshKeyId &&
 																					!isBuildServer && (
 																						<Tooltip>
 																							<TooltipTrigger asChild>
