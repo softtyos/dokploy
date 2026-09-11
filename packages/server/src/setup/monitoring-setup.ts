@@ -1,25 +1,21 @@
 import { findServerById } from "@dokploy/server/services/server";
 import { getWebServerSettings } from "@dokploy/server/services/web-server-settings";
 import type { CreateServiceOptions } from "dockerode";
-import { IS_CLOUD } from "../constants";
 import { getDokployImageTag } from "../services/settings";
 import { pullImage, pullRemoteImage } from "../utils/docker/utils";
 import { execAsync, execAsyncRemote } from "../utils/process/execAsync";
 import { getRemoteDocker } from "../utils/servers/remote-docker";
 
 const getMonitoringImage = () => {
-	let imageName = process.env.MONITORING_IMAGE || "softtynet/monitoring:latest";
-
-	if (
-		(getDokployImageTag() !== "latest" ||
-			process.env.NODE_ENV === "development") &&
-		!IS_CLOUD &&
-		!process.env.MONITORING_IMAGE
-	) {
-		imageName = "softtynet/monitoring:canary";
+	if (process.env.MONITORING_IMAGE) {
+		return process.env.MONITORING_IMAGE;
 	}
 
-	return imageName;
+	if (getDokployImageTag() === "canary") {
+		return "softtynet/monitoring:canary";
+	}
+
+	return "softtynet/monitoring:latest";
 };
 
 // Swarm tasks are dokploy-monitoring.<slot>.<id>, so this only matches the
