@@ -572,13 +572,48 @@ export const serverRouter = createTRPCRouter({
 		)
 		.query(async ({ input }) => {
 			try {
-				const url = new URL(input.url);
+				let resolvedUrl = input.url;
+				try {
+					const parsed = new URL(input.url);
+					if (
+						!parsed.hostname ||
+						parsed.hostname === "undefined" ||
+						parsed.hostname === "localhost" ||
+						parsed.hostname === "127.0.0.1"
+					) {
+						parsed.hostname =
+							process.env.NODE_ENV === "production"
+								? "dokploy-monitoring"
+								: "localhost";
+						resolvedUrl = parsed.toString();
+					}
+				} catch {
+					resolvedUrl = "http://dokploy-monitoring:4500/metrics";
+				}
+
+				const url = new URL(resolvedUrl);
 				url.searchParams.append("limit", input.dataPoints);
-				const response = await fetch(url.toString(), {
-					headers: {
-						Authorization: `Bearer ${input.token}`,
-					},
-				});
+
+				let response: Response;
+				try {
+					response = await fetch(url.toString(), {
+						headers: {
+							Authorization: `Bearer ${input.token}`,
+						},
+					});
+				} catch (fetchErr) {
+					if (url.hostname !== "dokploy-monitoring") {
+						url.hostname = "dokploy-monitoring";
+						response = await fetch(url.toString(), {
+							headers: {
+								Authorization: `Bearer ${input.token}`,
+							},
+						});
+					} else {
+						throw fetchErr;
+					}
+				}
+
 				if (!response.ok) {
 					throw new Error(
 						`Error ${response.status}: ${response.statusText}. Ensure the container is running and this service is included in the monitoring configuration.`,

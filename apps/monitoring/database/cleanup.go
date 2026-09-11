@@ -32,6 +32,9 @@ func CleanupMetrics(db *sql.DB, retentionDays int) error {
 
 // StartMetricsCleanup starts a cron job to periodically clean up metrics
 func StartMetricsCleanup(db *sql.DB, retentionDays int, cronExpression string) (*cron.Cron, error) {
+	if cronExpression == "" {
+		cronExpression = "0 0 * * *"
+	}
 	c := cron.New()
 
 	_, err := c.AddFunc(cronExpression, func() {

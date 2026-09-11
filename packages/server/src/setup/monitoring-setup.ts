@@ -8,14 +8,15 @@ import { execAsync, execAsyncRemote } from "../utils/process/execAsync";
 import { getRemoteDocker } from "../utils/servers/remote-docker";
 
 const getMonitoringImage = () => {
-	let imageName = "dokploy/monitoring:latest";
+	let imageName = process.env.MONITORING_IMAGE || "softtynet/monitoring:latest";
 
 	if (
 		(getDokployImageTag() !== "latest" ||
 			process.env.NODE_ENV === "development") &&
-		!IS_CLOUD
+		!IS_CLOUD &&
+		!process.env.MONITORING_IMAGE
 	) {
-		imageName = "dokploy/monitoring:canary";
+		imageName = "softtynet/monitoring:canary";
 	}
 
 	return imageName;
@@ -73,12 +74,30 @@ export const setupMonitoring = async (serverId: string) => {
 	const serviceName = "dokploy-monitoring";
 	const imageName = getMonitoringImage();
 
+	const safeMetricsConfig = {
+		server: {
+			refreshRate: server?.metricsConfig?.server?.refreshRate ?? 20,
+			port: server?.metricsConfig?.server?.port ?? 4500,
+			token: server?.metricsConfig?.server?.token || "metrics",
+			cronJob: server?.metricsConfig?.server?.cronJob || "0 0 * * *",
+			retentionDays: server?.metricsConfig?.server?.retentionDays ?? 7,
+			thresholds: server?.metricsConfig?.server?.thresholds ?? { cpu: 0, memory: 0 },
+		},
+		containers: {
+			refreshRate: server?.metricsConfig?.containers?.refreshRate ?? 20,
+			services: {
+				include: server?.metricsConfig?.containers?.services?.include ?? [],
+				exclude: server?.metricsConfig?.containers?.services?.exclude ?? [],
+			},
+		},
+	};
+
 	const settings: CreateServiceOptions = {
 		Name: serviceName,
 		TaskTemplate: {
 			ContainerSpec: {
 				Image: imageName,
-				Env: [`METRICS_CONFIG=${JSON.stringify(server?.metricsConfig)}`],
+				Env: [`METRICS_CONFIG=${JSON.stringify(safeMetricsConfig)}`],
 				Mounts: [
 					{
 						Type: "bind",
@@ -138,7 +157,24 @@ export const setupWebMonitoring = async () => {
 
 	const serviceName = "dokploy-monitoring";
 	const imageName = getMonitoringImage();
-	const port = webServerSettings?.metricsConfig?.server?.port;
+	const port = webServerSettings?.metricsConfig?.server?.port || 4500;
+	const safeMetricsConfig = {
+		server: {
+			refreshRate: webServerSettings?.metricsConfig?.server?.refreshRate ?? 20,
+			port: port,
+			token: webServerSettings?.metricsConfig?.server?.token || "metrics",
+			cronJob: webServerSettings?.metricsConfig?.server?.cronJob || "0 0 * * *",
+			retentionDays: webServerSettings?.metricsConfig?.server?.retentionDays ?? 7,
+			thresholds: webServerSettings?.metricsConfig?.server?.thresholds ?? { cpu: 0, memory: 0 },
+		},
+		containers: {
+			refreshRate: webServerSettings?.metricsConfig?.containers?.refreshRate ?? 20,
+			services: {
+				include: webServerSettings?.metricsConfig?.containers?.services?.include ?? [],
+				exclude: webServerSettings?.metricsConfig?.containers?.services?.exclude ?? [],
+			},
+		},
+	};
 
 	const settings: CreateServiceOptions = {
 		Name: serviceName,
@@ -146,7 +182,7 @@ export const setupWebMonitoring = async () => {
 			ContainerSpec: {
 				Image: imageName,
 				Env: [
-					`METRICS_CONFIG=${JSON.stringify(webServerSettings?.metricsConfig)}`,
+					`METRICS_CONFIG=${JSON.stringify(safeMetricsConfig)}`,
 				],
 				Mounts: [
 					{
@@ -180,6 +216,7 @@ export const setupWebMonitoring = async () => {
 					},
 				],
 			},
+			Networks: [{ Target: "dokploy-network" }],
 			Placement: {
 				Constraints: ["node.role==manager"],
 			},

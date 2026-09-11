@@ -6,16 +6,16 @@ FROM golang:1.21-alpine3.19 AS builder
 RUN apk add --no-cache gcc musl-dev sqlite-dev
 
 # Establecer el directorio de trabajo
-WORKDIR /app
-
-# Copiar todo el código fuente primero
-COPY . .
-
-# Movernos al directorio de la aplicación golang
 WORKDIR /app/apps/monitoring
 
-# Descargar dependencias
-RUN go mod download
+# Copy dependency specifications first to leverage Docker layer caching
+COPY apps/monitoring/go.mod apps/monitoring/go.sum* ./
+
+# Download dependencies with retry mechanism for network resilience
+RUN for i in 1 2 3 4 5; do go mod download && break || (echo "Retrying go mod download..." && sleep 3); done
+
+# Copy source code
+COPY apps/monitoring/ .
 
 # Compilar la aplicación
 RUN CGO_ENABLED=1 GOOS=linux go build -o main main.go
