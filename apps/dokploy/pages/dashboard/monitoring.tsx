@@ -8,6 +8,8 @@ import { ContainerFreeMonitoring } from "@/components/dashboard/monitoring/free/
 import { ShowPaidMonitoring } from "@/components/dashboard/monitoring/paid/servers/show-paid-monitoring";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { api } from "@/utils/api";
 
@@ -44,15 +46,13 @@ const Dashboard = () => {
 				</Card>
 			) : (
 				<>
-					{/* {monitoring?.enabledFeatures && (
-						<div className="flex flex-row border w-fit p-4 rounded-lg items-center gap-2">
-							<Label className="text-muted-foreground">Change Monitoring</Label>
-							<Switch
-								checked={toggleMonitoring}
-								onCheckedChange={setToggleMonitoring}
-							/>
-						</div>
-					)} */}
+					<div className="flex flex-row border w-fit p-4 rounded-lg items-center gap-2 mb-4">
+						<Label className="text-muted-foreground">Change Monitoring</Label>
+						<Switch
+							checked={toggleMonitoring}
+							onCheckedChange={_setToggleMonitoring}
+						/>
+					</div>
 					{toggleMonitoring ? (
 						<Card className="bg-sidebar  p-2.5 rounded-xl  mx-auto">
 							<div className="rounded-xl bg-background shadow-md">

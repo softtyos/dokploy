@@ -49,6 +49,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 	Tooltip,
@@ -276,8 +277,7 @@ const Service = (
 											{data?.sourceType !== "docker" && (
 												<TabsTrigger value="patches">Patches</TabsTrigger>
 											)}
-											{permissions?.monitoring.read &&
-												((data?.serverId && isCloud) || !data?.server) && (
+											{permissions?.monitoring.read && (
 													<TabsTrigger value="monitoring">
 														Monitoring
 													</TabsTrigger>
@@ -305,46 +305,30 @@ const Service = (
 										<TabsContent value="monitoring">
 											<div className="pt-2.5">
 												<div className="flex flex-col gap-4 border rounded-lg p-6">
-													{data?.serverId && isCloud ? (
+													<div className="flex flex-row border w-fit p-4 rounded-lg items-center gap-2 mb-4">
+														<Label className="text-muted-foreground">
+															Change Monitoring
+														</Label>
+														<Switch
+															checked={_toggleMonitoring}
+															onCheckedChange={_setToggleMonitoring}
+														/>
+													</div>
+
+													{_toggleMonitoring ? (
 														<ContainerPaidMonitoring
 															appName={data?.appName || ""}
-															baseUrl={`${data?.serverId ? `http://${data?.server?.ipAddress}:${data?.server?.metricsConfig?.server?.port}` : "http://localhost:4500"}`}
+															baseUrl={`http://${data?.server?.ipAddress || serverIp || "localhost"}:${data?.server?.metricsConfig?.server?.port || 4500}`}
 															token={
 																data?.server?.metricsConfig?.server?.token || ""
 															}
 														/>
 													) : (
-														<>
-															{/* {monitoring?.enabledFeatures &&
-															isCloud &&
-															data?.serverId && (
-																<div className="flex flex-row border w-fit p-4 rounded-lg items-center gap-2">
-																	<Label className="text-muted-foreground">
-																		Change Monitoring
-																	</Label>
-																	<Switch
-																		checked={toggleMonitoring}
-																		onCheckedChange={setToggleMonitoring}
-																	/>
-																</div>
-															)} */}
-
-															{/* {toggleMonitoring ? (
-															<ContainerPaidMonitoring
+														<div>
+															<ContainerFreeMonitoring
 																appName={data?.appName || ""}
-																baseUrl={`http://${monitoring?.serverIp}:${monitoring?.metricsConfig?.server?.port}`}
-																token={
-																	monitoring?.metricsConfig?.server?.token || ""
-																}
 															/>
-														) : ( */}
-															<div>
-																<ContainerFreeMonitoring
-																	appName={data?.appName || ""}
-																/>
-															</div>
-															{/* )} */}
-														</>
+														</div>
 													)}
 												</div>
 											</div>

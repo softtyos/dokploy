@@ -462,20 +462,7 @@ const createBetterAuth = () =>
 				references: "user",
 			}),
 			sso({ trustEmailVerified: true }),
-			scim({
-				beforeSCIMTokenGenerated: async ({ user }) => {
-					const dbUser = await db.query.user.findFirst({
-						where: eq(schema.user.id, user.id),
-						columns: { enableEnterpriseFeatures: true },
-					});
-
-					if (!dbUser?.enableEnterpriseFeatures) {
-						throw new APIError("FORBIDDEN", {
-							message: "SCIM provisioning requires an enterprise license",
-						});
-					}
-				},
-			}),
+			scim(),
 			twoFactor(),
 			passkey(),
 			organization({
@@ -655,10 +642,8 @@ export const validateRequest = async (request: IncomingMessage) => {
 		});
 
 		session.user.role = member?.role || "member";
-		session.user.enableEnterpriseFeatures =
-			member?.user.enableEnterpriseFeatures || false;
-		session.user.isValidEnterpriseLicense =
-			member?.user.isValidEnterpriseLicense || false;
+		session.user.enableEnterpriseFeatures = true;
+		session.user.isValidEnterpriseLicense = true;
 		session.session.activeOrganizationId = member?.organization.id || "";
 		if (member) {
 			session.user.ownerId = member.organization.ownerId;

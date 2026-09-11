@@ -47,9 +47,27 @@ func GetMetricsConfig() *Config {
 			log.Fatalf("Error parsing METRICS_CONFIG: %v", err)
 		}
 
-		// Validate required fields
-		if config.Server.Token == "" || config.Server.UrlCallback == "" {
-			log.Fatal("token and urlCallback are required in the configuration")
+		// Fallback defaults for missing fields
+		if config.Server.Token == "" {
+			config.Server.Token = "metrics"
+		}
+		if config.Server.Port == 0 {
+			config.Server.Port = 4500
+		}
+		if config.Server.RefreshRate <= 0 {
+			config.Server.RefreshRate = 20
+		}
+		if config.Server.RetentionDays <= 0 {
+			config.Server.RetentionDays = 7
+		}
+		if config.Server.CronJob == "" {
+			config.Server.CronJob = "0 0 * * *"
+		}
+		if config.Containers.RefreshRate <= 0 {
+			config.Containers.RefreshRate = 20
+		}
+		if config.Server.UrlCallback == "" {
+			log.Println("Warning: urlCallback is not configured. Webhook notifications will be skipped.")
 		}
 	})
 

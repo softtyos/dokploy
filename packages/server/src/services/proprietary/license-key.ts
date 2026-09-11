@@ -7,21 +7,8 @@ import {
 import { and, eq } from "drizzle-orm";
 import { getOrganizationOwnerId } from "./sso";
 
-export const hasValidLicense = async (organizationId: string) => {
-	const ownerId = await getOrganizationOwnerId(organizationId);
-
-	if (!ownerId) {
-		return false;
-	}
-
-	const currentUser = await db.query.user.findFirst({
-		where: eq(user.id, ownerId),
-		columns: {
-			enableEnterpriseFeatures: true,
-			isValidEnterpriseLicense: true,
-		},
-	});
-	// Bypass license check for internal use
+export const hasValidLicense = async (_organizationId?: string) => {
+	// Bypass license check for self-hosted enterprise use
 	return true;
 };
 
