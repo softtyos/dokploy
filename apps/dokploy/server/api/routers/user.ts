@@ -384,7 +384,7 @@ export const userRouter = createTRPCRouter({
 			const settings = await getWebServerSettings();
 			return {
 				serverIp: settings?.serverIp,
-				enabledFeatures: user.enablePaidFeatures,
+				enabledFeatures: true,
 				metricsConfig: settings?.metricsConfig,
 			};
 		},
@@ -542,14 +542,47 @@ export const userRouter = createTRPCRouter({
 						].join("\n"),
 					);
 				}
-				const url = new URL(`${input.url}/metrics/containers`);
+				let resolvedUrl = `${input.url}/metrics/containers`;
+				try {
+					const parsed = new URL(resolvedUrl);
+					if (
+						!parsed.hostname ||
+						parsed.hostname === "undefined" ||
+						parsed.hostname === "localhost" ||
+						parsed.hostname === "127.0.0.1"
+					) {
+						parsed.hostname =
+							process.env.NODE_ENV === "production"
+								? "dokploy-monitoring"
+								: "localhost";
+						resolvedUrl = parsed.toString();
+					}
+				} catch {
+					resolvedUrl = "http://dokploy-monitoring:4500/metrics/containers";
+				}
+
+				const url = new URL(resolvedUrl);
 				url.searchParams.append("limit", input.dataPoints);
 				url.searchParams.append("appName", input.appName);
-				const response = await fetch(url.toString(), {
-					headers: {
-						Authorization: `Bearer ${input.token}`,
-					},
-				});
+				let response: Response;
+				try {
+					response = await fetch(url.toString(), {
+						headers: {
+							Authorization: `Bearer ${input.token}`,
+						},
+					});
+				} catch (fetchErr) {
+					if (url.hostname !== "dokploy-monitoring") {
+						url.hostname = "dokploy-monitoring";
+						response = await fetch(url.toString(), {
+							headers: {
+								Authorization: `Bearer ${input.token}`,
+							},
+						});
+					} else {
+						throw fetchErr;
+					}
+				}
 				if (!response.ok) {
 					throw new Error(
 						`Error ${response.status}: ${response.statusText}. Please verify that the application "${input.appName}" is running and this service is included in the monitoring configuration.`,

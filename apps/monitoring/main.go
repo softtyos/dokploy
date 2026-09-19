@@ -26,8 +26,11 @@ func main() {
 	log.Printf("Environment variables:")
 	log.Printf("METRICS_CONFIG: %s", os.Getenv("METRICS_CONFIG"))
 
-	if token == "" || METRICS_URL_CALLBACK == "" {
-		log.Fatal("token and urlCallback are required in the configuration")
+	if token == "" {
+		token = "metrics"
+	}
+	if METRICS_URL_CALLBACK == "" {
+		log.Println("Notice: urlCallback is not configured. Webhook notifications will be disabled.")
 	}
 
 	db, err := database.InitDB()

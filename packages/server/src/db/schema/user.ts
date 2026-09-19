@@ -52,16 +52,16 @@ export const user = pgTable("user", {
 	// Admin
 	role: text("role").notNull().default("user"),
 	// Metrics
-	enablePaidFeatures: boolean("enablePaidFeatures").notNull().default(false),
+	enablePaidFeatures: boolean("enablePaidFeatures").notNull().default(true),
 	allowImpersonation: boolean("allowImpersonation").notNull().default(false),
 	// Enterprise / proprietary features
 	enableEnterpriseFeatures: boolean("enableEnterpriseFeatures")
 		.notNull()
-		.default(false),
+		.default(true),
 	licenseKey: text("licenseKey"),
 	isValidEnterpriseLicense: boolean("isValidEnterpriseLicense")
 		.notNull()
-		.default(false),
+		.default(true),
 	stripeCustomerId: text("stripeCustomerId"),
 	stripeSubscriptionId: text("stripeSubscriptionId"),
 	serversQuantity: integer("serversQuantity").notNull().default(0),

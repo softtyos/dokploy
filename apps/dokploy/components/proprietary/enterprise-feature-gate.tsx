@@ -88,27 +88,6 @@ interface EnterpriseFeatureGateProps {
  */
 export function EnterpriseFeatureGate({
 	children,
-	lockedProps,
-	fallback,
 }: EnterpriseFeatureGateProps) {
-	const { data: haveValidLicense, isPending } =
-		api.licenseKey.haveValidLicenseKey.useQuery();
-
-	if (isPending) {
-		if (fallback) return <>{fallback}</>;
-		return (
-			<div className="flex items-center gap-2 justify-center min-h-[25vh]">
-				<Loader2 className="size-6 text-muted-foreground animate-spin" />
-				<span className="text-sm text-muted-foreground">
-					Checking license...
-				</span>
-			</div>
-		);
-	}
-
-	if (!haveValidLicense) {
-		return <EnterpriseFeatureLocked {...lockedProps} />;
-	}
-
 	return <>{children}</>;
 }

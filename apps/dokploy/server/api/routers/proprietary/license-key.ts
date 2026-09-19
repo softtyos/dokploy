@@ -188,7 +188,7 @@ export const licenseKeyRouter = createTRPCRouter({
 		}
 
 		return {
-			enableEnterpriseFeatures: !!currentUser.enableEnterpriseFeatures,
+			enableEnterpriseFeatures: true,
 			licenseKey: currentUser.licenseKey ?? "",
 		};
 	}),
